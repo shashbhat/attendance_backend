@@ -80,6 +80,10 @@ def get_academic_year():
     res =  sdb.get_academic_year()
     return jsonify({"res":res})
 
+@app.route('/termDetails')
+def get_term_details():
+    res = sdb.get_term_details()
+    return jsonify({"res":res})
 
 if __name__ == "__main__":
     app.run(port=8088,debug=True)
