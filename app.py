@@ -6,6 +6,8 @@ from flask_jwt_extended import (
     get_jwt_identity, get_jwt_claims
 
 )
+
+import statement2Db as sdb
 app = Flask(__name__)
 CORS(app)
 
@@ -71,6 +73,12 @@ def protected():
         'roles': get_jwt_claims()['roles'] ,
         }
     return jsonify(ret), 200
+
+
+
+def get_academic _year():
+    res =  get_academic_year()
+    return jsonify("res":res)
 
 
 if __name__ == "__main__":
