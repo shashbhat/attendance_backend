@@ -75,10 +75,10 @@ def protected():
     return jsonify(ret), 200
 
 
-
-def get_academic _year():
-    res =  get_academic_year()
-    return jsonify("res":res)
+@app.route('/academicYear')
+def get_academic_year():
+    res =  sdb.get_academic_year()
+    return jsonify({"res":res})
 
 
 if __name__ == "__main__":
