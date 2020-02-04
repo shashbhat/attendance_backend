@@ -85,5 +85,17 @@ def get_term_details():
     res = sdb.get_term_details()
     return jsonify({"res":res})
 
+@app.route('/studentAttendanceDetails/<usn>/<term>/<academicYear>')
+def get_student_attendance_details(usn, term, academicYear):
+    res = sdb.get_student_attendance_details(usn, term, academicYear)
+    return jsonify({"res":res})
+
+
+@app.route('/studentUEmarksDetails/<usn>/<term>/<academicYear>')
+def get_student_Umarks(usn, term, academicYear):
+    res = sdb.get_student_Umarks(usn, term, academicYear)
+    return jsonify({"res":res})
+
+
 if __name__ == "__main__":
     app.run(port=8088,debug=True)
