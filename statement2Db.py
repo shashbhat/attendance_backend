@@ -80,7 +80,19 @@ def get_student_Umarks(usn, term, academicYear):
     return ar
 
             
+def get_usn_email(email):
+    collection = db.dhi_user
+    usn = collection.aggregate([
 
+  {"$match": {"email":email}},
+    {"$project":{"usn":1, "_id":0}}
+    
+    ])
+    res = []
+    for x in usn:
+        res = x["usn"]
+    
+    return res
 
 
 

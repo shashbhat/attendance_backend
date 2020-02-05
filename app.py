@@ -96,6 +96,11 @@ def get_student_Umarks(usn, term, academicYear):
     res = sdb.get_student_Umarks(usn, term, academicYear)
     return jsonify({"res":res})
 
+@app.route('/studentUSNlogin/<email>')
+def get_usn_email(email):
+    res = sdb.get_usn_email(email)
+    return jsonify({"res":res})
+
 
 if __name__ == "__main__":
     app.run(port=8088,debug=True)
