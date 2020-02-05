@@ -90,8 +90,7 @@ def get_usn_email(email):
     ])
     res = []
     for x in usn:
-        res = x["usn"]
-    
+        res.append(x)
     return res
 
 
