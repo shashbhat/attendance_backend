@@ -93,5 +93,33 @@ def get_usn_email(email):
         res.append(x)
     return res
 
+# def get_faculty_attendence_details(facultyName,term,academicYear):
+#     collection = db.dhi_student_attendance
+#     res = collection.aggregate([
 
 
+#     {"$match":{"academicYear":"2017-18","students.termNumber":"6"}},
+#     {"$unwind":{'path':"$faculties"}},
+#     {"$unwind":{'path':"$faculties.facultyName"}},
+#     {"$match":{"faculties.facultyName":"Mr John Prakash Veigas"}},
+#     {"$group":{"_id":{"avg":{"$avg":"$students.percentage"},"faculty":"$faculties.facultyName","course":"$courseName"}}},
+#     {"$project":{"faculty":"$_id.faculty","course":"$_id.course","_id":0,"avg":"$_id.avg"}}
+#     ])
+#     arr = []
+#     for r in res:
+#         arr.append(r)
+#     ar = sorted(arr, key=itemgetter('courseName')) 
+#     return ar
+
+def getCourseAttendance(course,usn):
+    collection = db.dhi_student_attendance
+    res = collection.aggregate([
+    {"$match":{"courseName":course}},
+    {"$unwind":"$students"},
+    {"$match":{"students.usn":usn}},
+    {"$project":{"total":"$students.totalNumberOfClasses","present":"$students.presentCount","_id":0}}
+    ])
+    res = []
+    for x in res:
+        res.append(x)
+    return res

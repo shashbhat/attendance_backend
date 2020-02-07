@@ -100,6 +100,17 @@ def get_student_Umarks(usn, term, academicYear):
 def get_usn_email(email):
     res = sdb.get_usn_email(email)
     return jsonify({"res":res})
+    
+# @app.route('/facultyAttendenceDetails/<facultyName>/<term>/<academicYear>')
+# def get_faculty_attendence_details(facultyName,term,academicYear):
+#     res = sdb.get_faculty_attendence_details(facultyName,term,academicYear)
+#     return jsonify({"res":res})
+    
+@app.route('/getCourseAttendance/<course>/<usn>')
+def courseAttendance(course,usn):
+    res = sdb.getCourseAttendance(course,usn)
+    return jsonify({"res":res})
+
 
 
 if __name__ == "__main__":
