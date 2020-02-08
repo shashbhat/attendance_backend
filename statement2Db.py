@@ -125,3 +125,58 @@ def get_faculty_attendence_details(facultyName,term,academicYear):
         arr.append(r)
     ar = sorted(arr, key=itemgetter('courseName')) 
     return ar
+
+
+def get_faculty_details(email, term, academicYear):
+    pass
+
+
+
+def get_faculty_avg_marks_details(courseCode, usnList):
+    collection = db.pms_university_exam
+    res = collection.aggregate([
+
+    {
+
+    '$unwind':'$terms'
+    },
+    {
+
+    '$unwind':'$terms.scores'
+    },
+    {
+
+    '$unwind':'$terms.scores.courseScores'
+    },
+
+    {
+
+    '$match':{
+    'terms.scores.courseScores.courseCode':courseCode,
+    'terms.scores.usn':{'$in': usnList}
+    }
+    },
+    {"$group":{"_id":"null", "ue" : {"$push": "$terms.scores.courseScores.ueScore"}
+    }},
+    {"$project":{"courseCode":"$_id.courseCode","avgMarks":{"$avg":"$ue"},"_id":0}}
+
+    ])
+
+    arr = []
+    for x in res:
+        arr.append(x)
+
+    return arr
+
+
+
+
+#     db.getCollection('dhi_student_attendance').aggregate([
+# {"$unwind":"$departments"},
+# {$match:{"academicYear":"2018-19","faculties.employeeGivenId":"MEC569","departments.termNumber":"5"}},
+
+# {"$unwind":"$students"},
+# {"$group":{"_id":{"courseCode":"$courseCode"},"usn" : {"$push": "$students.usn"}
+# }},
+# {"$project":{"courseCode":"$_id.courseCode","usn":"$usn"}}
+# ])

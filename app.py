@@ -113,9 +113,13 @@ def get_faculty_attendence_details(facultyName,term,academicYear):
     res = sdb.get_faculty_attendence_details(facultyName,term,academicYear)
     return jsonify({"res":res})
 
+@app.route('/facultyMarksDetails')
+def get_faculty_marks_details():
+    usnList = ["4MT16ME008", "4MT16ME013"]
+    courseCode = "15ME53"
+    res = sdb.get_faculty_avg_marks_details(courseCode, usnList)
+    return jsonify({"res":res})
 
 
-
-    
 if __name__ == "__main__":
     app.run(port=8088,debug=True)
