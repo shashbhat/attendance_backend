@@ -1,5 +1,7 @@
 from pymongo import MongoClient
 from operator import itemgetter 
+import bson
+import re
 
 uri = "mongodb://localhost:27017/dhi_analytics"
 
@@ -108,31 +110,47 @@ def getCourseAttendance(course,usn):
 
 # Faculty
 
-def get_faculty_attendence_details(facultyName,term,academicYear):
+# def get_Faculty(dept):
+#     pattern = re.compile(f'^{dept}')
+#     regex = bson.regex.Regex.from_native(pattern)
+#     regex.flags ^= re.UNICODE
+#     faculties = db.dhi_user.aggregate([
+        
+#         {"$match":{"roles.roleName":"FACULTY","employeeGivenId":{"$regex":regex}}},
+#         {"$sort":{"name":1}},
+#         {"$project":{"employeeGivenId":1,"name":1,"_id":0}}
+        
+#     ])
+#     arr = []
+#     for x in faculties:
+#         arr.append(x)
+#     return arr    
+
+
+
+def get_faculty_attendence_details(term,academicYear,eid):
     collection = db.dhi_student_attendance
     res = collection.aggregate([
 
 
-    {"$match":{"academicYear":"2017-18","students.termNumber":"6"}},
+    {"$match":{"academicYear":academicYear,"students.termNumber":term}},
     {"$unwind":{'path':"$faculties"}},
     {"$unwind":{'path':"$faculties.facultyName"}},
-    {"$match":{"faculties.facultyName":"Mr John Prakash Veigas"}},
+    {"$match":{"faculties.employeeGivenId":eid}},
     {"$group":{"_id":{"avg":{"$avg":"$students.percentage"},"faculty":"$faculties.facultyName","course":"$courseName"}}},
     {"$project":{"faculty":"$_id.faculty","course":"$_id.course","_id":0,"avg":"$_id.avg"}}
     ])
     arr = []
     for r in res:
         arr.append(r)
-    ar = sorted(arr, key=itemgetter('courseName')) 
+    ar = sorted(arr, key=itemgetter('course')) 
     return ar
 
 
-def get_faculty_details(email, term, academicYear):
-    pass
 
-
-
-def get_faculty_avg_marks_details(courseCode, usnList):
+def get_faculty_avg_marks_details(res):
+    courseCode = res[0]['courseCode']
+    usnList = res[0]['usn']
     collection = db.pms_university_exam
     res = collection.aggregate([
 
@@ -170,13 +188,90 @@ def get_faculty_avg_marks_details(courseCode, usnList):
 
 
 
+def get_faculty_marks_details(term, academicYear,eid):
+    # collection = db.dhi_student_attendance
+    # res =collection.aggregate([
+    # {"$unwind":"$departments"},
+    # {"$match":{"academicYear":academicYear,"faculties.employeeGivenId":eid,"departments.termNumber":term}},
 
-#     db.getCollection('dhi_student_attendance').aggregate([
-# {"$unwind":"$departments"},
-# {$match:{"academicYear":"2018-19","faculties.employeeGivenId":"MEC569","departments.termNumber":"5"}},
+    # {"$unwind":"$students"},
+    # {"$group":{"_id":{"courseCode":"$courseCode"},"usn" : {"$push": "$students.usn"}
+    # }},
+    # {"$project":{"courseCode":"$_id.courseCode","usn":"$usn", "_id":0}}
+    # ])
+    # arr = []
+    # for x in res:
+    #     arr.append(x)
+    # print(arr)
+    # res1 = get_faculty_avg_marks_details(arr)
+    # return res1
+    collection =db.dhi_student_attendance
+    emp = collection.aggregate([
+    {"$match":{"academicYear":academicYear,"students.termNumber":term}},
+    {"$unwind":{'path':"$faculties"}},
+    {"$unwind":{'path':"$faculties.facultyName"}},
+    {"$match":{"faculties.employeeGivenId":eid}},
+    {
+    "$lookup":
+    {
+    "from":"pms_university_exam",
+    "localField":"students.usn",
+    "foreignField":"terms.scores.usn",
+    "as":"usn"
+    }
+    },
+    {"$unwind":{'path':"$usn"}},
+    {"$unwind":{'path':"$usn.terms"}},
+    {"$unwind":{'path':"$usn.terms.scores"}},
+    {"$unwind":{'path':"$usn.terms.scores.courseScores"}},
+    {"$match":{"$expr":{"$eq":["$usn.terms.scores.courseScores.courseCode","$courseCode"]}}},
+    {"$group":{"_id":{"course":"$courseName"},"ue":{"$push":"$usn.terms.scores.courseScores.ueScore"}}},
+    {"$project":{"course":"$_id.course","Avg":{"$avg":"$ue"},"_id":0}}
+    ])
+    res = []
+    for x in emp:
+        res.append(x)
+    result = sorted(res,key=itemgetter("course"))
+    return result
 
-# {"$unwind":"$students"},
-# {"$group":{"_id":{"courseCode":"$courseCode"},"usn" : {"$push": "$students.usn"}
-# }},
-# {"$project":{"courseCode":"$_id.courseCode","usn":"$usn"}}
-# ])
+
+def get_eid_by_email(email):
+    collection = db.dhi_user
+    eid = collection.aggregate([
+
+    {"$match": {"email":email}},
+    {"$project":{"employeeGivenId":1, "_id":0}}
+    ])
+    res = []
+    for x in eid:
+        res.append(x)
+    return res
+
+def getFacultyName(deptId):
+    collection = db.dhi_student_attendance
+    name = collection.aggregate([
+        {"$unwind":{'path':"$departments"}},
+        {"$match":{"departments.deptId":deptId}},
+        {"$unwind":{'path':"$faculties"}},
+        {"$group":{"_id":{"name":"$faculties.facultyName","empId":"$faculties.employeeGivenId"}}},
+        {"$project":{"name":"$_id.name","empId":"$_id.empId","_id":0}}
+        ])
+    res = []
+    for n in name:
+        res.append(n)
+    return res
+
+def getDeptFaculty(dept):
+    collection = db.dhi_user
+    pattern = re.compile(f'^{dept}')
+    regex = bson.regex.Regex.from_native(pattern)
+    regex.flags ^= re.UNICODE 
+    faculties = collection.aggregate([
+        {"$match":{"roles.roleName":"FACULTY","employeeGivenId":{"$regex":regex}}},
+        {"$sort":{"name":1}},
+        {"$project":{"employeeGivenId":1,"name":1,"_id":0}}
+    ])
+    res = []    
+    for x in faculties:
+        res.append(x)
+    return res

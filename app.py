@@ -108,18 +108,49 @@ def courseAttendance(course,usn):
 
 # Faculty
 
-@app.route('/facultyAttendenceDetails/<facultyName>/<term>/<academicYear>')
-def get_faculty_attendence_details(facultyName,term,academicYear):
-    res = sdb.get_faculty_attendence_details(facultyName,term,academicYear)
+# @app.route('/faculties/<string:dept>')
+# def get_faculty(dept):
+#     faculties = sdb.get_Faculty(dept)
+#     return jsonify({"faculties":faculties})
+
+
+@app.route('/facultyAttendenceDetails/<term>/<academicYear>/<eid>')
+def get_faculty_attendence_details(term,academicYear,eid):
+    res = sdb.get_faculty_attendence_details(term,academicYear,eid)
     return jsonify({"res":res})
 
-@app.route('/facultyMarksDetails')
-def get_faculty_marks_details():
-    usnList = ["4MT16ME008", "4MT16ME013"]
-    courseCode = "15ME53"
-    res = sdb.get_faculty_avg_marks_details(courseCode, usnList)
+
+
+# @app.route('/facultyMarksDetails')
+# def get_faculty_marks_details():
+#     usnList = ["4MT16ME008", "4MT16ME013"]
+#     courseCode = "15ME53"
+#     res = sdb.get_faculty_avg_marks_details()
+#     return jsonify({"res":res})
+
+
+
+@app.route('/facultyMarksDetails/<term>/<academicYear>/<eid>')
+def get_faculty_marks1_details(term, academicYear, eid):
+  
+    res = sdb.get_faculty_marks_details(term, academicYear,eid)
     return jsonify({"res":res})
 
+@app.route('/facultyEid/<email>')
+def get_eid_by_email(email):
+    res = sdb.get_eid_by_email(email)
+    return jsonify({"res":res})
+
+    
+@app.route('/getDeptFaculty/<dept>')
+def getDeptFaculty(dept):
+    faculty = sdb.getDeptFaculty(dept)
+    return jsonify({"res":faculty})
+
+@app.route('/getFacultyNameByDeptId/<deptId>')
+def getFacultyName(deptId):
+    name = sdb.getFacultyName(deptId)
+    return jsonify({"res":name})
 
 if __name__ == "__main__":
     app.run(port=8088,debug=True)
