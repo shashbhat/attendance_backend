@@ -152,5 +152,15 @@ def getFacultyName(deptId):
     name = sdb.getFacultyName(deptId)
     return jsonify({"res":name})
 
+@app.route('/getDeptNames')
+def get_dept_names():
+    dept = sdb.get_dept_names()
+    return jsonify({'res':dept})
+
+@app.route('/getTotalClassTaken/<eid>/<courseName>')
+def get_total_class_taken(eid, courseName):
+    total = sdb.get_total_class_taken(eid,courseName)
+    return jsonify({'res':total})
+
 if __name__ == "__main__":
     app.run(port=8088,debug=True)

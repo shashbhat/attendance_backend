@@ -275,3 +275,31 @@ def getDeptFaculty(dept):
     for x in faculties:
         res.append(x)
     return res
+
+def get_dept_names():
+    collection = db.dhi_student_attendance
+    dept = collection.aggregate([
+    {"$unwind":"$departments"},
+    {"$group":{"_id": "null" , "dept": { "$addToSet": "$departments.deptId" }}},
+    {"$project":{"dept":"$dept","_id":0}}])
+
+    res = []
+    for x in dept:
+        res = x['dept']
+    res.sort()
+    return res
+
+def get_total_class_taken(eid, courseName):
+    collection = db.dhi_student_attendance
+
+    class1 = collection.aggregate([
+    {"$match":{"faculties.employeeGivenId":eid,"courseName":courseName}},
+    {"$unwind":"$students"},
+    {"$group":{"_id":"null","total": { "$addToSet": "$students.totalNumberOfClasses" }}},
+    {"$project":{"total":"$total","_id":0}}
+    ])
+
+    res = []
+    for x in class1:
+        res = x['total']
+    return res
