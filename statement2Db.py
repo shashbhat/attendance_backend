@@ -262,7 +262,7 @@ def getFacultyName(deptId):
     return res
 
 def getDeptFaculty(dept):
-    collection = db.dhi_user
+    collection = db.dhi_user    
     pattern = re.compile(f'^{dept}')
     regex = bson.regex.Regex.from_native(pattern)
     regex.flags ^= re.UNICODE 
