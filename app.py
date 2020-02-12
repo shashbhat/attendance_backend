@@ -162,5 +162,11 @@ def get_total_class_taken(eid, courseName):
     total = sdb.get_total_class_taken(eid,courseName)
     return jsonify({'res':total})
 
+
+@app.route('/getUserNameEmail/<email>')
+def get_user_name_by_email(email):
+    res = sdb.get_user_name_by_email(email)
+    return jsonify({'name':res})
+
 if __name__ == "__main__":
     app.run(port=8088,debug=True)

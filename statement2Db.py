@@ -176,7 +176,7 @@ def get_faculty_avg_marks_details(res):
     },
     {"$group":{"_id":"null", "ue" : {"$push": "$terms.scores.courseScores.ueScore"}
     }},
-    {"$project":{"courseCode":"$_id.courseCode","avgMarks":{"$avg":"$ue"},"_id":0}}
+    {"$project":{"  ":"$_id.courseCode","avgMarks":{"$avg":"$ue"},"_id":0}}
 
     ])
 
@@ -303,3 +303,19 @@ def get_total_class_taken(eid, courseName):
     for x in class1:
         res = x['total']
     return res
+
+
+def get_user_name_by_email(email):
+    collection = db.dhi_user
+
+    res = collection.aggregate([
+
+    {"$match":{"email":email}},
+    {"$project":{"name":"$name", "_id":0}}
+    ])  
+
+    name = []
+
+    for x in res:
+        name = x['name']
+    return name
